@@ -10,8 +10,12 @@ import numpy as np
 from data_processing.display import *
 
 # Define paths
-path2eeglab = '/home/mmWave_group/EasyCog/eeglab'
-path2data_processing = '/home/mmWave_group/EasyCog/data_processing'
+path2eeglab = 'path/to/eeglab'
+path2data_processing = 'path/to/data_processing/folder'
+
+# path2eeglab = '/home/EasyCog/eeglab'
+# path2data_processing = '/home/EasyCog/data_processing'
+
 
 def init_eeg_lab():
     """
