@@ -1,0 +1,356 @@
+# sliced_data_folder: /home/mmWave_group/EasyCog/features_proc_compare/sliced_feat_train/asreog_filter_order3_clean_data
+# sliced_trials_json: /home/mmWave_group/EasyCog/data_json_files/proc_compare_json/asreog_filter_order3_clean_data.json
+
+sliced_data_folder_clean: /mnt/glusterfs/home/zhenghang/hqy/EasyCog/data_v0428/sliced_feat_train/asreog_filter_order3_clean_data_0426
+sliced_trials_json_clean: /home/zhenghang/qingyong/EasyCog/data_json_files/proc_compare_json/converted_asreog_filter_order3_clean_data_0426.json
+
+sliced_data_folder_all: /mnt/glusterfs/home/zhenghang/hqy/EasyCog/data_v0428/sliced_feat_train/asreog_filter_order3_all_data
+sliced_trials_json_all: /home/zhenghang/qingyong/EasyCog/data_json_files/proc_compare_json/converted_asreog_filter_order3_all_data_0426.json
+
+
+dataloader: EasyCog_Joint_Training_Dataloader
+cog_task: 'all' # 'video' or 'resting' or 'all'
+
+input_type_list:
+- EEG
+- Task_embed
+
+input_format_dict:
+  EEG:
+  - sequence
+  Task_embed:
+  - last_token
+
+gt_type_list:
+- MoCA
+- MMSE
+- MoCA_taskscore
+- MMSE_taskscore
+
+gt_format_dict:
+  MoCA:
+  - value
+  MMSE:
+  - value
+  MoCA_taskscore:
+  - value
+  MMSE_taskscore:
+  - value
+
+norm_params:
+  EEG:
+    sequence:
+      max_value: 8087.9805
+      mean_value: -0.0003434395
+      min_value: -7018.4287
+      norm_type: norm_by_subject_task
+      std_value: 20.800686
+  Task_embed:
+    last_token:
+      max_value: ~
+      mean_value: ~
+      min_value: ~
+      norm_type: no_norm
+      std_value: ~
+
+  MMSE:
+    value:
+      max_value: 30.0
+      mean_value: 23.033305227655987
+      min_value: 0.0
+      norm_type: norm_by_min_max
+      std_value: 5.717059718000392
+  MoCA:
+    value:
+      max_value: 30.0
+      mean_value: 17.8941496951615
+      min_value: 0.0
+      norm_type: norm_by_min_max
+      std_value: 6.793486787029787
+  
+  MoCA_taskscore:
+    value:
+      norm_type: no_norm
+  MMSE_taskscore:
+    value:
+      norm_type: no_norm
+
+### mainly work on dataloader
+data_aug_methods:
+  train:
+    EEG:
+      no_aug:
+        aug_times: 1
+      # pink_noise_subject_task_arrays:
+      #   aug_times: 1
+      #   amplitude: 0.3
+    Task_embed:
+      no_aug:
+        aug_times: 1
+    MMSE:
+      no_aug:
+        aug_times: 1
+    MoCA:
+      no_aug:
+        aug_times: 1
+    MMSE_taskscore:
+      no_aug:
+        aug_times: 1
+    MoCA_taskscore:
+      no_aug:
+        aug_times: 1
+        
+  test:
+    EEG:
+      no_aug:
+        aug_times: 1
+    Task_embed:
+      no_aug:
+        aug_times: 1
+    features:
+      avg_intra_task_sample:
+        aug_times: 1
+        ratio: 1
+    MMSE:
+      no_aug:
+        aug_times: 1
+    MoCA:
+      no_aug:
+        aug_times: 1
+    MoCA_taskscore:
+      no_aug:
+        aug_times: 1
+    MMSE_taskscore:
+      no_aug:
+        aug_times: 1
+
+num_workers: 0
+persistent_workers: ~
+prefetch_factor: ~
+
+model:
+  name: Joint_CLS_REG_Model_moco_v2
+  cls_model_name: CBraMod_BaseModel
+  reg_model_name: Regression_Transformer_TaskScore # Regression_Transformer
+  contrast_method: sample
+  reg_return_features: ~
+  input_channels: 16
+  cls_emb_size: 40 ### for the cls model
+  num_classes: 10
+  load_pretrained_backbone: True
+  freeze_backbone: False
+  freeze_cls_model: False
+  cls_n_dim: 200
+  cls_depth: 12
+  backbone_weight_path: from utils.mask_pretrain_models.py
+  ### mask_ratio 0.75: ./checkpoints_CBraMod_Mask_Autoencoder_Pretrain_DL_pipeline/configs/mask_pretrain/cfg_CBraMod_Pretrained_asreog_filter3_clean_data_Mask_Autoencoder_Pretrain.yml/2025_03_28_18_00_34/best_mae_ratio_model.pth
+  ### mask_ratio 0.5: ./checkpoints_CBraMod_Mask_Autoencoder_Pretrain_DL_pipeline/configs/mask_pretrain/cfg_CBraMod_Pretrained_asreog_filter3_clean_data_Mask_Autoencoder_Pretrain.yml/2025_03_28_17_58_09/best_mae_ratio_model.pth
+  ### mask_ratio 0.25: ./checkpoints_CBraMod_Mask_Autoencoder_Pretrain_DL_pipeline/configs/mask_pretrain/cfg_CBraMod_Pretrained_asreog_filter3_clean_data_Mask_Autoencoder_Pretrain.yml/2025_03_28_18_00_55/best_mae_ratio_model.pth
+  n_dim: 200
+  reg_depth: 2
+  num_reg_dims: 2
+  reg_hidden_dims: [1024, 512, 256, 32]
+  input_length: 375
+  patch_sizes: [25, 16]
+  vlm_fusion_type: cross_attention
+  pretrained: ~
+  T: 0.07
+  K: 8192
+  m: 0.999
+  aug_methods: ### same as the data_augs in the regressor cfg file
+    # features_preprocess:
+    #       method: task_preprocessing
+    #       contrast_task:
+    #         - 2
+    #         - 3
+    #         - 6
+    features_preprocess:
+        # method: task_preprocessing
+        # contrast_task:
+        #   - 2
+        #   - 3
+        #   - 6
+        method: intra_task_attention ### task attention includes task_preprocessing
+        contrast_task:
+          - 2
+          - 3
+          - 6
+    bias_aug: False
+    train:
+      features:
+        random_intra_task_sample-random_order_numpy_array:
+          aug_times: 100
+          feat_len: 256
+          sample_ratio: 0.6
+          ratio: 1
+        mix_up:
+          aug_times: 100
+      MMSE:
+        no_aug:
+          aug_times: 100
+      MoCA:
+        no_aug:
+          aug_times: 100
+      MMSE_taskscore:
+        no_aug:
+          aug_times: 100
+      MoCA_taskscore:
+        no_aug:
+          aug_times: 100
+    test:
+      features:
+        avg_intra_task_sample:
+          aug_times: 1
+          ratio: 1
+      MMSE:
+        no_aug:
+          aug_times: 1
+      MoCA:
+        no_aug:
+          aug_times: 1
+      MMSE_taskscore:
+        no_aug:
+          aug_times: 1
+      MoCA_taskscore:
+        no_aug:
+          aug_times: 1
+
+# model:
+#   name: Joint_CLS_REG_Model_yx
+#   cls_model_name: CBraMod_BaseModel
+#   reg_model_name: Regression_MLP
+#   input_channels: 16
+#   emb_size: 40 ### for the cls model
+#   num_classes: 10
+#   load_pretrained_backbone: True
+#   freeze_backbone: False
+#   cls_n_dim: 200
+#   cls_depth: 12
+#   backbone_weight_path: ./checkpoints_CBraMod_Mask_Autoencoder_Pretrain_DL_pipeline/configs/mask_pretrain/cfg_CBraMod_Pretrained_asreog_filter3_clean_data_Mask_Autoencoder_Pretrain.yml/2025_03_28_17_58_09/best_mae_ratio_model.pth
+#   ### mask_ratio 0.75: ./checkpoints_CBraMod_Mask_Autoencoder_Pretrain_DL_pipeline/configs/mask_pretrain/cfg_CBraMod_Pretrained_asreog_filter3_clean_data_Mask_Autoencoder_Pretrain.yml/2025_03_28_18_00_34/best_mae_ratio_model.pth
+#   ### mask_ratio 0.5: ./checkpoints_CBraMod_Mask_Autoencoder_Pretrain_DL_pipeline/configs/mask_pretrain/cfg_CBraMod_Pretrained_asreog_filter3_clean_data_Mask_Autoencoder_Pretrain.yml/2025_03_28_17_58_09/best_mae_ratio_model.pth
+#   ### mask_ratio 0.25: ./checkpoints_CBraMod_Mask_Autoencoder_Pretrain_DL_pipeline/configs/mask_pretrain/cfg_CBraMod_Pretrained_asreog_filter3_clean_data_Mask_Autoencoder_Pretrain.yml/2025_03_28_18_00_55/best_mae_ratio_model.pth
+#   n_dim: 200
+#   reg_depth: 2
+#   reg_hidden_dims: [1024, 512, 256, 32]
+#   input_length: 375
+#   patch_sizes: [25, 16]
+#   pretrained: ~
+#   aug_methods: ### same as the data_augs in the regressor cfg file
+#     train:
+#       features:
+#         random_intra_task_sample-random_order_numpy_array:
+#           aug_times: 300
+#           feat_len: 256
+#           sample_ratio: 0.3
+#           ratio: 1
+#       MMSE:
+#         no_aug:
+#           aug_times: 300
+#       MoCA:
+#         no_aug:
+#           aug_times: 300
+#       MMSE_taskscore:
+#         no_aug:
+#           aug_times: 300
+#       MoCA_taskscore:
+#         no_aug:
+#           aug_times: 300
+#     test:
+#       features:
+#         avg_intra_task_sample:
+#           aug_times: 1
+#           ratio: 1
+#       MMSE:
+#         no_aug:
+#           aug_times: 1
+#       MoCA:
+#         no_aug:
+#           aug_times: 1
+#       MMSE_taskscore:
+#         no_aug:
+#           aug_times: 1
+#       MoCA_taskscore:
+#         no_aug:
+#           aug_times: 1
+
+Loss:
+  name: reg_L1_Loss_Subscore_Similarity
+  params:
+    alpha: 1
+    beta: 0.1
+    gamma: 0.1
+    theta: 0
+    delta: 0
+
+Test_Loss:
+  name: reg_L1_Loss_Subscore_Similarity
+  params:
+    alpha: 1
+    beta: 0.1
+    gamma: 0.1
+    theta: 0
+    delta: 0
+
+# Loss:
+#   name: reg_L2_Loss
+#   params:
+#     alpha: 1
+
+
+# Test_Loss:
+#   name: reg_L2_Loss
+#   params:
+#     alpha: 1
+
+seed: 43
+cpu: ~
+cpu_affinity: ~
+gpu: 1
+
+
+batch_size: 4
+lr_init: 0.001 # 0.0001
+warmup_epochs: 20
+epochs: 100
+scheduler: cosine
+optimizer: Adam
+weight_decay: 0.00001
+
+
+cross_validation: 5-folder
+train: True
+evaluate: ~
+resume: ~
+
+
+train_stage: cog_regression # direct train wo domain adaptation or self-supervised learning
+
+DA:
+  if_use: False
+  Adapt_Data_Ratio: 1
+  Discriminator: DomainDiscriminator
+  methods: domain_adv
+
+
+
+save_path: /mnt/glusterfs/home/zhenghang/hqy/EasyCog/models/checkpoints_joint_train
+train_subject: ~
+valid_subject: ~
+test_subject: ~
+
+is_split_trials_json_dict: True
+logger_file: ~
+
+record: record.txt
+save_epoch: 10
+
+
+multi-task: ~
+task: regression
+classes: 10
+
+print_freq: 1
+test_freq: 1
+
+pic_finetune: False

@@ -22,10 +22,3 @@ def read_xlsx_to_dict(file, sh="Sheet1"):
                 skip -= 1
         cols_val.append(data)
     return dict(zip(title, cols_val))
-
-
-if __name__ == "__main__":
-    root_path = "/data/mmWave_group/EasyCog/Ours_v2"
-    patient_info_xlsx = os.path.join(root_path, "Patient Info.xlsx")
-    ret = read_xlsx_to_dict(patient_info_xlsx)
-    print(ret["id"])

@@ -13,8 +13,6 @@ from data_processing.display import *
 path2eeglab = 'path/to/eeglab'
 path2data_processing = 'path/to/data_processing/folder'
 
-# path2eeglab = '/home/EasyCog/eeglab'
-# path2data_processing = '/home/EasyCog/data_processing'
 
 
 def init_eeg_lab():

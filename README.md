@@ -103,17 +103,27 @@ check_key_order(saved_json_file)
 ### 2. Deep Learning Pipeline
 
 #### 2.1 Prepare the config yaml file
+See the `DL_pipeline/configs folder`. Take `BL_D/cfg_CBraMod_Direct_Finetune_Resting.yml` as example:
+modify the data_folder and trials_json as yours
+```
+sliced_data_folder_all: /path/to/your/data/folder
+sliced_trials_json_all: /path/to/your/data/json
+```
 
 
 #### 2.2 Prepare the 10-fold cross-validation script
-
+See the `run_cross_validation.sh`. Modify the `cfg_file` (for the picture-layer feature extraction) and the `cfg_file_reg` (for the task-layer and subject-layer score regression) as your config files.
+```
+cfg_file='CogAssess_v3/cfg_mocov2_sample_joint_train_classifier_mask_pretrain_CBraMod.yml'
+cfg_file_reg='CogAssess_v3/cfg_mocov2_sample_joint_train_regressor_mask_pretrain_RegTransformer.yml'
+log_folder="../EasyCog/logs/CogAssess_v3/"
+```
 
 #### 2.3 How to modify the model
+See `DL_pipeline/models` folder.
 
 
-#### 2.4 Alternative training
-
-#### 2.5 Run the test script
-
+#### 2.4 Run the test script
+See `run_cross_validation_eval_load_log.sh`. It analyses the outputs recorded in the log files. So we do not need to perform inference to get the results. You need to replace the `log_folder` and `log_filename_prefix` with your target paths.
 
 

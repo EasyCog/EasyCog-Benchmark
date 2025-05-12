@@ -1,0 +1,204 @@
+sliced_data_folder_clean: /data/mmWave_group/EasyCog/features_proc_compare/sliced_feat_train/asreog_filter_order3_clean_data_0426
+sliced_trials_json_clean: /home/mmWave_group/EasyCog/data_json_files/proc_compare_json/asreog_filter_order3_clean_data_0426.json
+
+sliced_data_folder_all: /data/mmWave_group/EasyCog/features_proc_compare/sliced_feat_train/asreog_filter_order3_all_data
+sliced_trials_json_all: /home/mmWave_group/EasyCog/data_json_files/proc_compare_json/asreog_filter_order3_all_data_0426.json
+
+dataloader: EasyCog_Dataloader
+
+cog_task: 'all' # 'video' or 'resting' or 'all'
+
+input_type_list:
+- EEG
+
+input_format_dict:
+  EEG:
+  - sequence
+
+gt_type_list:
+- Task_id
+- MoCA
+- MMSE
+
+gt_format_dict:
+  Task_id:
+  - value
+  MoCA:
+  - value
+  MMSE:
+  - value
+
+norm_params:
+  EEG:
+    sequence:
+      max_value: 8087.9805
+      mean_value: -0.0003434395
+      min_value: -7018.4287
+      norm_type: norm_by_subject_task
+      std_value: 20.800686
+  # Forehead_EEG:
+  #   sequence:
+  #     max_value: 154812.58
+  #     mean_value: 0.0045869965
+  #     min_value: -84378.19
+  #     norm_type: norm_by_mean_std
+  #     std_value: 350.74622
+  EOG:
+    sequence:
+      max_value: 1635.6597773955923
+      mean_value: -0.0045129696270988975
+      min_value: -3579.4792106246364
+      norm_type: norm_by_mean_std
+      std_value: 16.910222728516395
+  Gaze_posi:
+    sequence:
+      max_value: 3200.46688992919
+      mean_value: 972.4825660968037
+      min_value: -409.99182789123677
+      norm_type: norm_by_mean_std
+      std_value: 393.044501894086
+  MMSE:
+    value:
+      max_value: 30.0
+      mean_value: 23.033305227655987
+      min_value: 0.0
+      norm_type: norm_by_min_max
+      std_value: 5.717059718000392
+  MoCA:
+    value:
+      max_value: 28.0
+      mean_value: 17.8941496951615
+      min_value: 0.0
+      norm_type: norm_by_min_max
+      std_value: 6.793486787029787
+  Task_id:
+    value:
+      max_value: ~
+      mean_value: ~
+      min_value: ~
+      norm_type: no_norm
+      std_value: ~
+  Task_embed:
+    last_token:
+      max_value: ~
+      mean_value: ~
+      min_value: ~
+      norm_type: no_norm
+      std_value: ~
+  Task_score:
+    value:
+      max_value: ~
+      mean_value: ~
+      min_value: ~
+      norm_type: no_norm
+      std_value: ~
+
+data_aug_methods:
+  train:
+    EEG:
+      pink_noise:
+        aug_times: 1
+        amplitude: 0.3
+      # random_mask:
+      #   aug_times: 2
+      #   mask_ratio: 0.5
+    Task_id:
+      no_aug:
+        aug_times: 1
+    Task_embed:
+      no_aug:
+        aug_times: 1
+    MoCA:
+      no_aug:
+        aug_times: 1
+    MMSE:
+      no_aug:
+        aug_times: 1
+  test:
+    EEG:
+      no_aug:
+        aug_times: 1
+    Task_id:
+      no_aug:
+        aug_times: 1
+    Task_embed:
+      no_aug:
+        aug_times: 1
+    MoCA:
+      no_aug:
+        aug_times: 1
+    MMSE:
+      no_aug:
+        aug_times: 1
+
+num_workers: 8
+persistent_workers: True
+prefetch_factor: 2
+
+model:
+  input_channels: 16
+  name: CBraMod
+  in_dim: 200
+  out_dim: 200
+  d_model: 200
+  dim_feedforward: 800
+  seq_len: 30
+  n_layer: 12
+  nhead: 8
+  load_pretrained_backbone: True
+  pretrained: ~
+
+Loss:
+  name: MSE_Loss
+  params:
+    alpha: ~
+
+Test_Loss:
+  name: MSE_Loss
+  params:
+    alpha: ~
+
+seed: 43
+cpu: ~
+cpu_affinity: ~
+gpu: 1
+
+batch_size: 256
+lr_init: 0.001
+warmup_epochs: 20
+epochs: 100
+scheduler: cosine
+optimizer: Adam
+
+cross_validation: 5-folder
+train: True
+evaluate: ~
+resume: ~
+
+train_stage: mask_pretrain # direct train wo domain adaptation or self-supervised learning
+
+DA:
+  if_use: False
+  Adapt_Data_Ratio: 1
+  methods: ~
+
+save_path: ./checkpoints_Ours_Mask_Pretrain_0d5
+train_subject: ~
+valid_subject: ~
+test_subject: ~
+
+is_split_trials_json_dict: True
+logger_file: ~
+
+record: record.txt
+save_epoch: 10
+
+task: regression
+classes: 10
+
+print_freq: 10
+test_freq: 1
+valid_freq: 1
+
+
+mask_ratio: 0.5
